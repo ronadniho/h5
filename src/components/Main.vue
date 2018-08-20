@@ -54,7 +54,27 @@
 
       </li>
     </transition-group>
+    <img class="music"
+         src="../assets/music.png"
+         alt=""
+         ref="music"
+         @click="action">
 
+    <audio src="../assets/kmj.mp3"
+           preload="auto"
+           loop="loop"
+           ref="audio"
+    >
+    </audio>
+    <!--
+        <audio :src="audioSource"
+               autoplay="autoplay"
+               preload="auto"
+               loop="loop"
+               ref="audio"
+               >
+        </audio>
+    -->
   </div>
 </template>
 
@@ -69,6 +89,7 @@
         page: '',
         startClientY: 0,
         endClientY: 0,
+        audioSource: require('../assets/kmj.mp3'),
         childNode: [
           {
             val: 1,
@@ -169,11 +190,28 @@
     }
     ,
     mounted: function () {
-      // this.childNode[0].show = true;
+      // this.action(this.audioSource);
+      console.log(this.$refs.audio)
+      this.action();
     }
     ,
     methods: {
-      getPromise: function (newPage, oldPage) {
+      action() {
+        let audio = this.$refs.audio;
+        let music = this.$refs.music;
+
+        console.log(audio);
+        if (audio.paused) {
+          audio.play();
+          music.className += ' music-start';
+        }
+        else {
+          audio.pause();
+          var reg = new RegExp("(\\s|^)" + 'music-start' + "(\\s|$)");
+          music.className = music.className.replace(reg, " ");
+        }
+      },
+      getPromise(newPage, oldPage) {
         return new Promise((resolve) => {
           for (let i = 0; i < this.childNode[newPage].show.length; i++) {
             ((ms, t) => {
@@ -209,15 +247,15 @@
 
         })
       },
-      touchStart: function (e) {
+      touchStart(e) {
         console.log('onTouchStart');
         console.log(e)
         console.log(e.changedTouches[0].clientY)
         this.startClientY = e.changedTouches[0].clientY;
       },
-      touchMove: function (e) {
+      touchMove(e) {
       },
-      touchEnd: function (e) {
+      touchEnd(e) {
         console.log('onTouchEnd');
         this.endClientY = e.changedTouches[0].clientY;
         console.log(this.startClientY - this.endClientY)
@@ -231,7 +269,7 @@
           return;
         }
       },
-      touchCancel: function () {
+      touchCancel() {
       },
       random() {
         return Math.floor(Math.random() * 255 - 1);
@@ -256,7 +294,37 @@
 
   #main .my-transition {
     opacity: 1;
+  }
 
+  @keyframes myMusic {
+    0% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(90deg);
+    }
+    50% {
+      transform: rotate(180deg);
+    }
+    75% {
+      transform: rotate(270deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .music {
+    position: fixed;
+    z-index: 100;
+    width: 30px; /*no*/
+    height: 30px; /*no*/
+    right: 40px;
+    top: 40px;
+  }
+
+  .music-start {
+    animation: myMusic .4s infinite;
   }
 
   ul, #main, .child {
@@ -309,7 +377,7 @@
         -webkit-background-size: cover;
         background-size: cover;
         border: 0;
-        animation:mybtn .8s infinite;
+        animation: mybtn .8s infinite;
       }
     }
   }
